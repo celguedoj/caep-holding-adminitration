@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     postgres_user: str = "caep"
     postgres_password: str = "caep"
     database_url: str | None = Field(default=None, validation_alias="DATABASE_URL")
+    jwt_secret_key: str = Field(default="change-me-local-secret", validation_alias="JWT_SECRET_KEY")
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_minutes: int = 60
+    admin_username: str = Field(default="admin", validation_alias="ADMIN_USERNAME")
+    admin_password: str = Field(default="admin123", validation_alias="ADMIN_PASSWORD")
 
     model_config = SettingsConfigDict(
         env_file=".env",
