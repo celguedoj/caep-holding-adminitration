@@ -1,0 +1,45 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caep_holding_api
+    environment:
+      APP_NAME: ${APP_NAME:-CAEP Holding Administration API}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-caep_holding}
+      POSTGRES_USER: ${POSTGRES_USER:-caep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-caep}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-caep}:${POSTGRES_PASSWORD:-caep}@db:5432/${POSTGRES_DB:-caep_holding}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:16-alpine
+    container_name: caep_holding_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-caep_holding}
+      POSTGRES_USER: ${POSTGRES_USER:-caep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-caep}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-caep} -d ${POSTGRES_DB:-caep_holding}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
