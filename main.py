@@ -1,13 +1,17 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="CAEP Holding Administration API",
+        version="0.1.0",
+    )
+
+    @app.get("/health", tags=["system"])
+    def health_check() -> dict[str, str]:
+        return {"status": "ok"}
+
+    return app
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+app = create_app()
